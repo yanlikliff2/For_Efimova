@@ -1,5 +1,5 @@
-from run import bot
-from run import database as db
+from main import bot
+from main import database as db
 
 from aiogram.fsm.state import StatesGroup, State
 from aiogram import F, Router
@@ -7,8 +7,6 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, InputMediaDocument, FSInputFile
 
 import app.keyboards as kb
-
-import app.admin_keyboards as akb
 
 user_router = Router()
 
@@ -32,33 +30,51 @@ start_text = (
 async def cmd_start(message: Message):
     us_id = message.from_user.id
     await db.add_user(us_id, message.from_user.username)
-    await bot.send_photo(photo="photos/photo_2025-03-14_21-13-58.jpg", caption=start_text,
-                         reply_markup=kb.button1)
+    await message.reply_photo(photo=FSInputFile("photos/photo_2025-03-14_21-13-58.jpg"), caption=start_text,
+                              reply_markup=kb.button1)
 
 
-@user_router.callback_query(F.text == 'Привет, КУИТ! Поехали!')
-async def hi(callback: CallbackQuery):
-    await bot.send_photo(photo="photos/photo_2025-03-14_21-14-24.jpg", caption=start_text2,
-                         reply_markup=kb.button1)
-    await bot.send_photo(photo="photos/photo_2025-03-14_21-14-31.jpg",
-                         caption="Напоминаю, после прохождения"
-                                 "мероприятия обязательно зайдите в свою папку и прикрепите свой сертификат!",
-                         reply_markup=kb.achievements_keyboard)
+@user_router.message(F.text == 'Привет, КУИТ! Поехали!')
+async def hi(callback_query: Message):
+    await callback_query.reply_photo(photo=FSInputFile("photos/photo_2025-03-14_21-14-31.jpg"),
+                                     caption="Напоминаю, после прохождения"
+                                             "мероприятия обязательно зайдите в свою папку и прикрепите свой сертификат!",
+                                     reply_markup=kb.achievements_keyboard)
+    await callback_query.reply_photo(photo=FSInputFile("photos/photo_2025-03-14_21-14-24.jpg"), caption=start_text2,
+                                     reply_markup=kb.button2)
 
 
-@user_router.callback_query(F.text == 'Диктанты')
-async def page2(callback: CallbackQuery):
-    await callback.message.answer('Диктанты',
+@user_router.message(F.text == 'Диктанты')
+async def page2(message: Message):
+    await message.answer('Диктанты',
                                   reply_markup=kb.keyboard_dict)
 
 
-@user_router.callback_query(F.text == 'Викторины')
-async def page2(callback: CallbackQuery):
-    await callback.message.answer('Викторины',
-                                  reply_markup=kb.keyboard_vict)
+@user_router.message(F.text == 'Хакатоны')
+async def page2(message: Message):
+    await message.answer('Хакатоны',
+                                  reply_markup=kb.keyboard_hacks)
 
 
-@user_router.callback_query(F.text == 'Викторины')
-async def page2(callback: CallbackQuery):
-    await callback.message.answer('Викторины',
-                                  reply_markup=kb.keyboard_vict)
+@user_router.message(F.text == 'Чемпионаты')
+async def page2(message: Message):
+    await (message.answer('Чемпионаты',
+                                  reply_markup=kb.keyboard_chemp))
+
+
+@user_router.message(F.text == 'Олимпиады')
+async def page2(message: Message):
+    await message.answer('Олимпиады',
+                                  reply_markup=kb.keyboard_ol)
+
+
+@user_router.message(F.text == 'Конкурсы')
+async def page2(message: Message):
+    await message.answer('Конкурсы',
+                                  reply_markup=kb.keyboard_konk)
+
+
+@user_router.message(F.text == 'Прикрепить достижения')
+async def page2(message: Message):
+    await message.answer('Прикрепить достижения',
+                                  reply_markup=kb.achievements_keyboard)
